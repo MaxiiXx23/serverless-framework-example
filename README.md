@@ -63,7 +63,7 @@ Any tsconfig.json can be used, but if you do, set the environment variable `TS_N
 
 # Commands
 
- - **serverless offline**  <---- comando para rodar o serverless de forma offline.
- - **serverless dynamodb install** <--- comando para installar o dynamodb no projet serverless.
- - **serverless dynamodb start** <--- comando para iniciar e gerar as migrations do banco de dados
+ - `serverless offline`  <---- comando para rodar o serverless de forma offline.
+ - `serverless dynamodb install` <--- comando para installar o dynamodb no projet serverless.
+ - `serverless dynamodb start` <--- comando para iniciar e gerar as migrations do banco de dados
 
