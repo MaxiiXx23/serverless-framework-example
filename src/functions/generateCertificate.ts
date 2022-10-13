@@ -82,7 +82,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     await page.setContent(content);
     
-    const pdf = page.pdf({
+    const pdf = await page.pdf({
         format: "a4",
         landscape: true,
         printBackground: true,
