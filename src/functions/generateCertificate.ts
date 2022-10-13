@@ -1,12 +1,17 @@
 import { join } from "path";
 import { readFileSync } from "fs";
 
+import * as dotenv from 'dotenv'
+dotenv.config();
+
+// function responsável pela conexão com o db
+import { document } from "src/utils/dynamodbClient";
+
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { compile } from "handlebars";
 import dayjs from "dayjs";
 import chromium from "chrome-aws-lambda";
-
-import { document } from "src/utils/dynamodbClient";
+// import { S3 } from "aws-sdk";
 
 interface ICreateCertificate {
     id: string;
@@ -38,7 +43,20 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const { id, name, grade } = JSON.parse(event.body) as ICreateCertificate;
 
-    // método para inserção na table do dynamonDB, específico o nome da table e o body
+    // verifco se o aluno já existe na base de dados
+    const response = await document.query({
+        TableName: "users_certificate",
+        KeyConditionExpression: "id = :id",
+        ExpressionAttributeValues: {
+            ":id": id
+        }
+    }).promise();
+
+    const userAlreadyExists = response.Items[0];
+
+    if(!userAlreadyExists){
+
+            // método para inserção na table do dynamonDB, específico o nome da table e o body
     // o métdo 'put' retorna 'void'
 
     await document.put({
@@ -51,13 +69,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         }
     }).promise();
 
-    const response = await document.query({
-        TableName: "users_certificate",
-        KeyConditionExpression: "id = :id",
-        ExpressionAttributeValues: {
-            ":id": id
-        }
-    }).promise();
+    }
 
     const medalPath = join(process.cwd(), "src", "templates", "selo.png");
     const medal = readFileSync(medalPath, "base64");
@@ -92,9 +104,26 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     await browser.close();
 
+    // upload para o bucket S3
+
+    // const s3 = new S3();
+
+    // s
+    
+    // await s3.putObject({
+    //     Bucket: "certificateIgnite",
+    //     Key: `${id}.pdf`,
+    //     ACL: "public-read",
+    //     Body: pdf,
+    //     ContentType: "application/pdf"
+    // }).promise();
+
     return {
         statusCode: 201,
         // no body colocamos informatações que desejamos
-        body: JSON.stringify(response.Items[0])
+        body: JSON.stringify({
+            message: "Certificado criado com sucesso!",
+            url: `${process.env.URL}/certificate.pdf`
+        })
     }
 } 

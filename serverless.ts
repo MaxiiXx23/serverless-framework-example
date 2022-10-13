@@ -11,6 +11,18 @@ const serverlessConfiguration: AWS = {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
     },
+    iamRoleStatements:[
+      {
+        Effect: "Allow",
+        Action: ["dynamodb:*"],
+        Resource:["*"]
+      },
+      {
+        Effect: "Allow",
+        Action: ["s3:*"],
+        Resource:["*"]
+      }
+    ],
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
@@ -25,6 +37,18 @@ const serverlessConfiguration: AWS = {
           http: {
             path: "generateCertificate",
             method: "post",
+            cors: true,
+          }
+        }
+      ]
+    },
+    verifyCertificate: {
+      handler: "src/functions/verifyCertificate.handler",
+      events: [
+        {
+          http: {
+            path: "verifyCertificate/{id}",
+            method: "get",
             cors: true,
           }
         }
